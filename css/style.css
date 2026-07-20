@@ -424,6 +424,154 @@ a:hover { color: var(--accent-hover); text-decoration: underline; }
     font-size: 0.875rem;
 }
 
+/* ---- ORIGINAL ARTICLE STYLING ---- */
+.original-article {
+    max-width: 740px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+}
+
+.original-article header {
+    margin-bottom: 2.5rem;
+}
+
+.article-tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: var(--accent);
+    color: #fff;
+    margin-bottom: 0.5rem;
+}
+
+.article-category {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    background: var(--tag-ai);
+    color: #fff;
+    margin-left: 0.5rem;
+}
+
+.original-article h1 {
+    font-size: 2rem;
+    color: #fff;
+    margin: 0.75rem 0;
+    line-height: 1.2;
+}
+
+.original-article .article-meta {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+}
+
+.article-content {
+    line-height: 1.8;
+}
+
+.article-content .lead {
+    font-size: 1.15rem;
+    color: var(--text);
+    margin-bottom: 2rem;
+    border-left: 3px solid var(--accent);
+    padding-left: 1rem;
+}
+
+.article-content h2 {
+    font-size: 1.4rem;
+    color: #fff;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.3rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.article-content p {
+    margin-bottom: 1.25rem;
+    color: var(--text);
+}
+
+.article-content ul,
+.article-content ol {
+    padding-left: 1.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.article-content li {
+    margin-bottom: 0.5rem;
+    color: var(--text);
+}
+
+.article-content strong {
+    color: #fff;
+}
+
+.analysis-box {
+    background: var(--bg-card);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin: 2rem 0;
+}
+
+.analysis-box h3 {
+    font-size: 1rem;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+}
+
+.analysis-box p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.7;
+}
+
+.specs-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    font-size: 0.9rem;
+}
+
+.specs-table th {
+    text-align: left;
+    padding: 0.6rem 1rem;
+    background: var(--bg-card);
+    color: #fff;
+    border-bottom: 2px solid var(--accent);
+}
+
+.specs-table td {
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+}
+
+.article-footer {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.article-footer p {
+    margin-bottom: 0.5rem;
+}
+
+.back-link {
+    display: inline-block;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: var(--accent);
+    font-weight: 600;
+}
+
 /* ---- RESPONSIVE ---- */
 @media (max-width: 768px) {
     .articles-grid { grid-template-columns: 1fr; }
