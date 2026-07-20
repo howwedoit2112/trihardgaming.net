@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agent Swarms Hit 1,000 Commits Per Second — Here's What It Costs | TriHard Gaming Tech</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <nav class="site-nav">
+        <a href="../index.html" class="logo">TriHard Gaming Tech</a>
+        <div class="nav-links">
+            <a href="../index.html">Home</a>
+            <a href="index.html">Articles</a>
+            <a href="../about/index.html">About</a>
+            <a href="../contact/index.html">Contact</a>
+        </div>
+    </nav>
+
+    <main class="article-body">
+        <article class="original-article">
+            <header>
+                <span class="article-tag">Original Analysis</span>
+                <span class="article-category">AI / Dev Tools</span>
+                <h1>AI Agent Swarms Hit 1,000 Commits Per Second — Here's What It Costs</h1>
+                <p class="article-meta">By PixelOracle · July 20, 2026 · 7 min read</p>
+            </header>
+
+            <div class="article-content">
+                <p class="lead">Cursor's latest experiment shows that hundreds of AI agents working together can build a database from scratch in four hours. The trick isn't raw compute — it's keeping each agent from going brain-dead on context overload.</p>
+
+                <p>Earlier this year, Cursor ran a swarm of AI agents to <a href="https://cursor.com/blog/scaling-agents" target="_blank" rel="noopener">build a web browser from nothing</a>. It worked, roughly. The real product wasn't the browser — it was the engineering insight about how groups of agents coordinate, collide, and exhaust their own working memory.</p>
+
+                <p>Today they published the sequel. A <a href="https://cursor.com/blog/agent-swarm-model-economics" target="_blank" rel="noopener">new paper on agent swarms and model economics</a> details how they rebuilt their swarm architecture and tested it against a harder benchmark: implementing SQLite in Rust, from the 835-page manual, with zero source code or internet access.</p>
+
+                <h2>The Swarm That Broke Git</h2>
+
+                <p>The flagship browser experiment from earlier this year peaked at roughly <strong>1,000 commits per hour</strong> on Git. That sounds like a lot until you do the math — it's about 17 commits per minute. Fine for a weekend hackathon. Not fine for hundreds of agents all writing code at once.</p>
+
+                <p>The new swarm peaks at <strong>1,000 commits per second</strong>. That's a 60x increase. Git and its ecosystem tools rely on coarse locks for concurrency control — think of it as one developer at a time grabbing the steering wheel. At agent-scale, that's a traffic jam with no traffic light.</p>
+
+                <p>So Cursor <a href="https://cursor.com/blog/agent-swarm-model-economics" target="_blank" rel="noopener">built a custom version control system from scratch</a>. Every change passes through the VCS, so it's the natural choke point for detecting collisions, tracking design decisions, and resolving conflicts before they cascade.</p>
+
+                <h2>Two Roles, One Tree</h2>
+
+                <p>The swarm architecture uses <strong>two distinct roles</strong> organized around a tree-like task decomposition:</p>
+
+                <ul>
+                    <li><strong>Planner agents</strong> run the smartest, most expensive models. They split goals into subtasks and delegate. They never write implementation code, so their context never fills with low-level detail.</li>
+                    <li><strong>Worker agents</strong> run faster, cheaper models. They execute specific pieces of work. They never plan, so they spend all their context on one narrow task.</li>
+                </ul>
+
+                <p>The separation of concerns isn't just architectural — it's cognitive. I found the claim that <strong>context efficiency</strong>, rather than parallelism, is the key advantage of scaling swarms. That's the insight worth repeating. You can throw a hundred agents at a problem, but if every agent is carrying the full context of the problem plus every other agent's work, you're just spending money on the same mistake in parallel.</p>
+
+                <h2>The SQLite Experiment</h2>
+
+                <p>Take the 835-page SQLite manual. No source code. No test suites. No internet. Give it to a swarm of agents and ask them to build the database in Rust.</p>
+
+                <p>The swarm graded itself against <strong>sqllogictest</strong>, the SQLite project's own test suite containing millions of queries with known correct answers:</p>
+
+                <ul>
+                    <li><strong>GPT-5.5</strong> (frontier model for everything): Hit 100% of the suite.</li>
+                    <li><strong>Grok 4.5</strong> (cost-efficient frontier): Reached 80% in four hours, eventually passed everything.</li>
+                    <li><strong>Opus 4.8 planning + Composer 2.5 execution</strong>: Passed the full suite.</li>
+                    <li><strong>Fable 5 planning + Composer 2.5 execution</strong>: Reached 100% by four hours.</li>
+                </ul>
+
+                <h2>Failure Modes at Scale</h2>
+
+                <p>Running hundreds of concurrent agents isn't like running a build pipeline. New failure modes emerge that human engineering teams don't encounter:</p>
+
+                <ul>
+                    <li><strong>Split-brain design</strong> — Two planners implement the same concept differently. Fix: planners now make design decisions themselves and ensure no two delegated subtrees answer the same question.</li>
+                    <li><strong>Contention between planners</strong> — Agents fight through back-and-forth changes on the same files. Fix: shared design documents with compile-checked references.</li>
+                    <li><strong>Merge conflicts</strong> — Workers collide constantly. Fix: a neutral third-party agent intervenes, acting like a merge queue.</li>
+                    <li><strong>Megafiles</strong> — Files attract disproportionate attention and bloat. Fix: workers can flag bloated files, blocking new commits while an outside agent decomposes them.</li>
+                    <li><strong>Ossification</strong> — Agents learn not to touch core code even when it needs changing. Fix: intentional breakage is licensed with comments.</li>
+                </ul>
+
+                <h2>The Economics of Mixing Models</h2>
+
+                <p>Different model combinations produced similar quality output but <strong>vastly different costs</strong>:</p>
+
+                <ul>
+                    <li>GPT-5.5 for both planning and execution: <strong>$10,565</strong></li>
+                    <li>Opus 4.8 planning + Composer 2.5 execution: <strong>$1,339</strong></li>
+                </ul>
+
+                <p>That's an eightx difference in cost for roughly the same result. The takeaway is clean: <strong>frontier model planning paired with fast model execution is a cost-effective mix</strong>.</p>
+
+                <div class="analysis-box">
+                    <h3>PixelOracle Analysis</h3>
+                    <p>The frontier-plus-fast execution pattern is going to become the default for serious AI-assisted development. Paying for GPT-5.5 quality on every line of code is wasteful when the planning phase — where ambiguity actually matters — is a tiny fraction of the total tokens. Think of it like having a senior engineer draw the blueprint and a team of competent juniors build to spec. That's how engineering has always worked. Agent swarms just make the division of labor explicit.</p>
+                </div>
+
+                <h2>What I Think</h2>
+
+                <p>The comparison to economist Ronald Coase's theory of the firm isn't a stretch — it's a direct parallel. The swarm doesn't scale because it has more agents. It scales because each agent has less to hold in its head. The 70,000 merge conflicts in the old run versus under 1,000 in the new run tells the story better than any benchmark chart.</p>
+
+                <p>One thing I'll keep an eye on: the custom VCS. Git works fine for one developer, but agent-scale concurrency is a different game. If agent swarms become common — and they will — the version control infrastructure running underneath will need to be purpose-built. Cursor's early work here could be the git(1) moment for AI-assisted development.</p>
+            </div>
+
+            <footer class="article-footer">
+                <div class="references-section">
+                    <h3>References</h3>
+                    <ol>
+                        <li><a href="https://cursor.com/blog/agent-swarm-model-economics" target="_blank" rel="noopener">Cursor Blog — Agent swarms and the new model economics</a></li>
+                        <li><a href="https://news.ycombinator.com/item?id=48982535" target="_blank" rel="noopener">Hacker News — Community analysis and commentary</a></li>
+                        <li><a href="https://github.com/cursor/minisqlite" target="_blank" rel="noopener">GitHub — Opus 4.8 run's SQLite codebase</a></li>
+                    </ol>
+                </div>
+                <p><strong>Published:</strong> Original analysis by PixelOracle · July 20, 2026</p>
+                <a href="index.html" class="back-link">← Back to Articles</a>
+            </footer>
+        </article>
+    </main>
+
+    <footer class="site-footer">
+        <p>&copy; 2026 TriHard Gaming Tech. All rights reserved.</p>
+        <p>Built with WordPress · <a href="../about/index.html">About</a> · <a href="../contact/index.html">Contact</a></p>
+    </footer>
+
+    <script src="../js/main.js"></script>
+</body>
+</html>

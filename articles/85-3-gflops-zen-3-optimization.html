@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>One Core, 85.3 GFLOPS: How Software Optimization Squeezes Zen 3 Dry | TriHard Gaming Tech</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <nav class="site-nav">
+        <a href="../index.html" class="logo">TriHard Gaming Tech</a>
+        <div class="nav-links">
+            <a href="../index.html">Home</a>
+            <a href="index.html">Articles</a>
+            <a href="../about/index.html">About</a>
+            <a href="../contact/index.html">Contact</a>
+        </div>
+    </nav>
+
+    <main class="article-body">
+        <article class="original-article">
+            <header>
+                <span class="article-tag">Original Analysis</span>
+                <span class="article-category">Computer Science</span>
+                <h1>One Core, 85.3 GFLOPS: How Software Optimization Squeezes Zen 3 Dry</h1>
+                <p class="article-meta">By PixelOracle · July 20, 2026 · 8 min read</p>
+            </header>
+
+            <div class="article-content">
+                <p class="lead">A single-core <strong>FP32 matrix multiplication</strong> on a modest AMD Zen 3 CPU hit <strong>85.3 GFLOPS</strong> — nearly 57 times faster than the naive implementation, and within striking distance of theoretical limits. This wasn't achieved by buying better hardware. It was achieved by 28 rounds of surgical software optimization.</p>
+
+                <p>I found this result in a GitHub repo by Lucas Lima Freitag, a developer who systematically pushed an AMD Ryzen 5 5500 to its absolute mathematical ceiling. The benchmark trended on <strong>Hacker News</strong>, and for good reason: it exposes something quietly dramatic about modern computing. There is an enormous amount of untapped performance sitting idle in the silicon already on your desk.</p>
+
+                <h2>The Battlefield: Matrix Multiplication</h2>
+
+                <p>Matrix multiplication is the <strong>workhorse operation</strong> of modern computing. It's the engine inside neural network training, the calculation behind real-time ray tracing denoisers, the physics simulation in every AAA game, and the recommendation algorithm deciding which product you'll buy next.</p>
+
+                <p>In academic terms, it's called <strong>GEMM</strong> — General Matrix Multiply. In practical terms, it's the single operation you optimize when you want to dominate an entire industry.</p>
+
+                <p>The math is deceptively simple: multiply two matrices, store the result in a third. An NxN matrix multiply requires N³ multiply-add operations. The hardware to do it fits in the palm of your hand. The challenge is that the hardware is full of moving parts, and most of them are fighting against each other.</p>
+
+                <h2>The Hardware: AMD Zen 3</h2>
+
+                <p>The CPU in question is an <strong>AMD Ryzen 5 5500</strong> — a six-core Zen 3 chip clocked at 4.2 GHz. It's not exotic. It's not a server processor. You can buy one on Amazon for roughly $120.</p>
+
+                <p>Here's what matters about its microarchitecture:</p>
+
+                <ul>
+                    <li><strong>Two FMA (fused multiply-add) execution ports</strong> per core</li>
+                    <li><strong>AVX2 support</strong> with 256-bit wide vector registers (YMM0–YMM15)</li>
+                    <li>Each AVX2 register holds <strong>eight 32-bit floating-point values</strong></li>
+                    <li>Each FMA instruction performs <strong>two operations per float</strong> (multiply and add)</li>
+                </ul>
+
+                <p>The math works out like this: 2 ports × 8 floats × 2 ops × 4.2 GHz = <strong>134.4 GFLOPS theoretical peak</strong> for a single core. That number is the absolute ceiling — the speed of light for this chip.</p>
+
+                <p>Most code doesn't come close. A textbook triple-nested-loop implementation on this hardware manages roughly 1.5 to 3 GFLOPS. The gap between naive and optimal isn't a small inefficiency. It's an order of magnitude.</p>
+
+                <h2>The Optimization Chain</h2>
+
+                <p>Freitag didn't tweak one thing and call it a day. He ran <strong>28 distinct models</strong> (labeled MX01 through MX28), each layering additional optimization techniques on top of the last. The progression reads like a video game difficulty curve — each step demanding deeper understanding of how the CPU actually works.</p>
+
+                <h3>Cache Blocking (Tiling)</h3>
+
+                <p>Modern CPUs have a <strong>memory hierarchy</strong>: fast but tiny L1 cache (32 KB per core), medium L2 cache (512 KB), and larger L3 cache (16 MB shared). If your working data doesn't fit in L1, you pay a steep latency penalty. If it spills beyond L3, you're waiting for DRAM — which is roughly 200 times slower than L1.</p>
+
+                <p>The fix is <strong>cache blocking</strong> — also called <em>tiling</em>. You break the large matrix into smaller chunks that fit neatly into each level of cache. The Zen 3 L1 data cache holds 32 KB, so block sizes need to be carefully calculated to keep the active tiles resident.</p>
+
+                <p>Freitag tested block sizes for all three cache levels. The sweet spot for the BK dimension (inner blocking factor) was <strong>256</strong>, which maximized data reuse without overflowing L2.</p>
+
+                <h3>Register Blocking</h3>
+
+                <p>Beyond cache, there's the <strong>register file</strong>. Zen 3 has 16 YMM registers available for AVX2 operations. You can think of registers as the CPU's immediate workspace — faster than any cache, but extremely limited in size.</p>
+
+                <p><strong>Register blocking</strong> means keeping accumulator rows of the result matrix in registers across multiple iterations of the inner loop, rather than writing them to memory and reloading them. The best configuration used <strong>four accumulator rows</strong>, which filled 32 YMM registers total and required register spilling — but the reuse of matrix A more than compensated for the cost.</p>
+
+                <h3>FMA Chaining</h3>
+
+                <p>Each FMA instruction on Zen 3 has <strong>4 cycles of latency</strong>. That means the result isn't available for 4 clock cycles. If you chain dependent instructions, your execution ports sit idle, waiting.</p>
+
+                <p><strong>FMA chaining</strong> solves this by maintaining multiple independent accumulator chains. With <code>chain4</code> (the optimal configuration), four independent streams of computation run in parallel, perfectly hiding the 4-cycle latency.</p>
+
+                <h3>Memory Packing</h3>
+
+                <p>Matrix B in a GEMM operation is typically accessed with strided memory patterns — jumping across rows rather than reading sequentially. CPUs hate this. Freitag tested several strategies and found <strong>B-pack on-the-fly</strong> (copying blocks of B into a contiguous buffer) won — it converted strided access into sequential reads without polluting the L3 cache like a full transposition would.</p>
+
+                <h3>The Mistakes</h3>
+
+                <p>The optimization journey wasn't just about successes. The failures are equally instructive:</p>
+
+                <ul>
+                    <li><strong>Non-temporal stores</strong> (<code>_mm256_stream_ps</code>) dropped performance to <strong>1.24 GFLOPS</strong></li>
+                    <li><strong>Eight-row register blocking</strong> required 64 YMM registers and spilled 48, collapsing to <strong>12.24 GFLOPS</strong></li>
+                    <li><strong>Six-chain FMA chaining</strong> overextended the register budget and hit <strong>14.26 GFLOPS</strong></li>
+                </ul>
+
+                <h2>The Result: 85.3 GFLOPS</h2>
+
+                <p>The winning configuration, <strong>MX24</strong>, combined 4-line register blocking, chain4 FMA chaining, and B-packing with BK=256. It hit <strong>85.3 GFLOPS</strong> — <strong>63.5% of the theoretical peak</strong> of 134.4 GFLOPS.</p>
+
+                <p>That's over half the speed of light. On a $120 processor.</p>
+
+                <div class="analysis-box">
+                    <h3>PixelOracle Analysis</h3>
+                    <p>The real story isn't just the 85.3 GFLOPS number — it's the 28-model systematic approach. This wasn't a lucky discovery. It was methodical experimentation across a design space of real techniques, with measurable results at each step. That methodology — test, measure, iterate — is as applicable to software engineering as it is to hardware design. The optimization gap is wider than the hardware gap. A Zen 3 core from 2022, properly fed, competes with significantly newer architectures running unoptimized code.</p>
+                </div>
+
+                <h2>Why This Matters Beyond Benchmarks</h2>
+
+                <p>Every neural network layer is a matrix multiply followed by an activation function. When you train a large language model with billions of parameters, you're performing trillions of GEMM operations. The difference between 35 GFLOPS and 85 GFLOPS per core compounds dramatically at scale. Most applications don't use hand-tuned GEMM kernels. They use library defaults, compiler auto-vectorization, or plain Python loops. The gap between what your CPU can do and what your software actually achieves could be 10x.</p>
+
+                <h2>What I Think</h2>
+
+                <p>I think we're living through a quiet revolution in how we measure "performance." The conventional wisdom says you buy a faster CPU or upgrade to a GPU. But Freitag's results suggest a different priority: <strong>the optimization gap is wider than the hardware gap</strong>.</p>
+
+                <p>The hardware doesn't care about your intentions. It only responds to your precision.</p>
+            </div>
+
+            <footer class="article-footer">
+                <div class="references-section">
+                    <h3>References</h3>
+                    <ol>
+                        <li><a href="https://github.com/houslast3/85.30-GFLOPS-Single-Core-FP32-Matrix-Multiplication-on-AMD-Zen-3" target="_blank" rel="noopener">GitHub — Lucas Lima Freitag's Zen 3 FP32 Matrix Multiplication Repository</a></li>
+                        <li><a href="https://news.ycombinator.com" target="_blank" rel="noopener">Hacker News — Benchmark discussion thread</a></li>
+                    </ol>
+                </div>
+                <p><strong>Published:</strong> Original analysis by PixelOracle · July 20, 2026</p>
+                <a href="index.html" class="back-link">← Back to Articles</a>
+            </footer>
+        </article>
+    </main>
+
+    <footer class="site-footer">
+        <p>&copy; 2026 TriHard Gaming Tech. All rights reserved.</p>
+        <p>Built with WordPress · <a href="../about/index.html">About</a> · <a href="../contact/index.html">Contact</a></p>
+    </footer>
+
+    <script src="../js/main.js"></script>
+</body>
+</html>
