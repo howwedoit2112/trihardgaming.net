@@ -572,6 +572,47 @@ a:hover { color: var(--accent-hover); text-decoration: underline; }
     font-weight: 600;
 }
 
+/* ---- INLINE CITATION LINKS ---- */
+.cite-link {
+    display: inline;
+    vertical-align: super;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--accent);
+    text-decoration: none;
+    line-height: 0;
+    margin-left: 1px;
+    transition: color 0.15s;
+}
+.cite-link:hover {
+    color: var(--accent-hover);
+    text-decoration: underline;
+}
+
+.references-section {
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+}
+.references-section h3 {
+    font-size: 1rem;
+    color: #fff;
+    margin-bottom: 0.75rem;
+}
+.references-section ol {
+    padding-left: 1.5rem;
+}
+.references-section li {
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+.references-section li a {
+    color: var(--accent);
+    text-decoration: underline;
+}
+
 /* ---- RESPONSIVE ---- */
 @media (max-width: 768px) {
     .articles-grid { grid-template-columns: 1fr; }
