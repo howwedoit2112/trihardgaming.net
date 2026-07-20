@@ -132,6 +132,7 @@ a:hover { color: var(--accent-hover); text-decoration: underline; }
     position: absolute;
     top: 100%;
     right: 2rem;
+    z-index: 9999;
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: 0 0 var(--radius) var(--radius);
