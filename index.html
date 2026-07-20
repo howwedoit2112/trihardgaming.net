@@ -3,72 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TriHard Gaming Tech | AI & Tech Insights</title>
-    <meta name="description" content="Cutting-edge insights on AI, technology, and gaming from TriHard Gaming's tech division.">
+    <title>TriHard Gaming Tech - AI & Technology News</title>
     <link rel="stylesheet" href="css/style.css">
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
 </head>
 <body>
-    <header>
-        <nav>
-            <div class="logo">TriHard Gaming<span class="tech">.Tech</span></div>
-            <ul class="nav-links">
-                <li><a href="/">Home</a></li>
-                <li><a href="/articles">Articles</a></li>
-                <li><a href="/about">About</a></li>
-                <li><a href="#newsletter" class="cta">Subscribe</a></li>
-            </ul>
-        </nav>
+    <nav class="site-nav">
+        <a href="index.html" class="logo">TriHard Gaming Tech</a>
+        <div class="nav-links">
+            <a href="index.html" class="active">Home</a>
+            <a href="articles/index.html">Articles</a>
+            <a href="about/index.html">About</a>
+            <a href="contact/index.html">Contact</a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <h1>AI & Technology News</h1>
+        <p>Curated coverage of artificial intelligence, emerging tech, and the industry moves shaping our future.</p>
+        <a href="articles/index.html" class="hero-cta">Read Latest Articles</a>
     </header>
 
-    <main>
-        <section class="hero">
-            <h1>AI & Tech Insights for the Future-Ready</h1>
-            <p>Daily analysis on artificial intelligence, emerging tech, and the tools shaping tomorrow.</p>
-            <a href="#newsletter" class="btn-primary">Get Weekly Briefings</a>
-        </section>
-
-        <section id="articles" class="featured-articles">
-            <h2>Latest Articles</h2>
-            <div class="article-grid">
-                <!-- Dynamic content will be populated by JS -->
-                <div class="article-card">
-                    <h3>AI Productivity Tools Every Business Needs in 2026</h3>
-                    <p>The landscape of AI-driven productivity is evolving. Here's what's delivering measurable ROI right now.</p>
-                    <span class="read-more">Read More →</span>
-                </div>
-                <div class="article-card">
-                    <h3>Remote Work Trends: Data-Driven Insights for 2026</h3>
-                    <p>Remote work isn't dying—it's maturing. The data tells a compelling story about where work is headed.</p>
-                    <span class="read-more">Read More →</span>
-                </div>
-                <div class="article-card">
-                    <h3>SaaS Marketing Strategies That Actually Convert</h3>
-                    <p>Forget vanity metrics. These 5 SaaS marketing strategies drive real revenue growth.</p>
-                    <span class="read-more">Read More →</span>
+    <main class="articles-grid">
+        <!-- Featured -->
+        <article class="article-card featured">
+            <div class="card-content">
+                <span class="category-tag">AI Music</span>
+                <h2><a href="articles/suno-ai-music.html">Suno AI: How Music Is Being Made (and Stolen)</a></h2>
+                <p>Suno's models were trained on millions of songs scraped from YouTube, Genius, and Deezer. The scraped audio includes decades of recorded music.</p>
+                <div class="card-meta">
+                    <time datetime="2026-07-18">Jul 18, 2026</time>
+                    <span class="author">Terrence O'Brien</span>
                 </div>
             </div>
-        </section>
+        </article>
 
-        <section id="newsletter">
-            <h2>Join the Briefing</h2>
-            <p>Get weekly insights on AI, tech, and business delivered to your inbox. No fluff, just actionable intelligence.</p>
-            <form class="newsletter-form">
-                <input type="email" placeholder="Your email address" required>
-                <button type="submit">Subscribe</button>
-            </form>
-        </section>
+        <article class="article-card">
+            <div class="card-content">
+                <span class="category-tag">AI News</span>
+                <h2><a href="articles/openai-chatgpt-silencing-generation.html">Dave Eggers Told OpenAI Staff ChatGPT Was "Silencing a Generation"</a></h2>
+                <p>The author used Sam Altman's invitation to give a speech as an opportunity to lash out at ChatGPT.</p>
+                <div class="card-meta">
+                    <time datetime="2026-07-18">Jul 18, 2026</time>
+                    <span class="author">Terrence O'Brien</span>
+                </div>
+            </div>
+        </article>
 
-        <!-- Google AdSense placeholder -->
-        <section class="ad-placeholder">
-            <p>Ad Space — Coming Soon</p>
-        </section>
+        <article class="article-card">
+            <div class="card-content">
+                <span class="category-tag">AI Industry</span>
+                <h2><a href="articles/apple-openai-lawsuit.html">Apple's Lawsuit Against OpenAI: The 6 Wildest Claims</a></h2>
+                <p>The 41-page complaint details how OpenAI allegedly "coached" Apple employees and asked for "show and tell" during interviews.</p>
+                <div class="card-meta">
+                    <time datetime="2026-07-17">Jul 17, 2026</time>
+                    <span class="author">Emma Roth</span>
+                </div>
+            </div>
+        </article>
+
+        <article class="article-card">
+            <div class="card-content">
+                <span class="category-tag">Gaming</span>
+                <h2><a href="articles/ps6-handheld.html">The PS6 Sure Sounds Like a Handheld</a></h2>
+                <p>Sony's next PlayStation console sounds like it's going to be a handheld device based on recent business meetings.</p>
+                <div class="card-meta">
+                    <time datetime="2026-07-15">Jul 15, 2026</time>
+                    <span class="author">Sean Hollister</span>
+                </div>
+            </div>
+        </article>
+
+        <article class="article-card">
+            <div class="card-content">
+                <span class="category-tag">Tech Review</span>
+                <h2><a href="articles/sony-bravia-tv.html">Sony's Flagship RGB LED TV Is Incredible</a></h2>
+                <p>The Bravia 9 II delivers stunning color accuracy and contrast that rivals OLED displays.</p>
+                <div class="card-meta">
+                    <time datetime="2026-07-18">Jul 18, 2026</time>
+                    <span class="author">John Higgins</span>
+                </div>
+            </div>
+        </article>
+
+        <article class="article-card">
+            <div class="card-content">
+                <span class="category-tag">AI Business</span>
+                <h2><a href="articles/netflix-ben-affleck-ai.html">Netflix Paid $587M for Ben Affleck's AI Startup</a></h2>
+                <p>The streaming giant acquired InterPositive in March 2026, confirming the exact price in an SEC filing.</p>
+                <div class="card-meta">
+                    <time datetime="2026-07-17">Jul 17, 2026</time>
+                    <span class="author">Jay Peters</span>
+                </div>
+            </div>
+        </article>
+
+        <article class="article-card">
+            <div class="card-content">
+                <span class="category-tag">AI Infrastructure</span>
+                <h2><a href="articles/meta-anthropic-compute.html">Meta Considering $10B Compute Lease to Anthropic</a></h2>
+                <p>Sources tell The New York Times the deal could be valued at $10 billion over two years.</p>
+                <div class="card-meta">
+                    <time datetime="2026-07-17">Jul 17, 2026</time>
+                    <span class="author">Emma Roth</span>
+                </div>
+            </div>
+        </article>
+
+        <article class="article-card">
+            <div class="card-content">
+                <span class="category-tag">AI Infrastructure</span>
+                <h2><a href="articles/spacex-pentagon-compute.html">SpaceX Might Land the Pentagon as a Big Compute Customer</a></h2>
+                <p>The Pentagon may pay for billions of dollars of compute from SpaceX for its AI push.</p>
+                <div class="card-meta">
+                    <time datetime="2026-07-17">Jul 17, 2026</time>
+                    <span class="author">Jay Peters</span>
+                </div>
+            </div>
+        </article>
+
+        <article class="article-card">
+            <div class="card-content">
+                <span class="category-tag">AI News</span>
+                <h2><a href="articles/apple-nudify-ai.html">Apple and Google Ordered to Take Down AI "Nudify" Apps</a></h2>
+                <p>San Francisco city attorney sent cease-and-desist letters demanding removal of 13 apps.</p>
+                <div class="card-meta">
+                    <time datetime="2026-07-17">Jul 17, 2026</time>
+                    <span class="author">Emma Roth</span>
+                </div>
+            </div>
+        </article>
+
+        <div class="article-card view-all-card">
+            <a href="articles/index.html" class="view-all-link">View All Articles →</a>
+        </div>
     </main>
 
-    <script src="js/content.js"></script>
-    <footer>
-        <p>&copy; 2026 TriHard Gaming. All rights reserved.</p>
-        <p>Built with autonomous AI intelligence.</p>
+    <footer class="site-footer">
+        <p>&copy; 2026 TriHard Gaming Tech. All rights reserved.</p>
+        <p>Built with WordPress. <a href="about/index.html">About</a> &middot; <a href="contact/index.html">Contact</a></p>
     </footer>
+
+    <script src="js/main.js"></script>
 </body>
 </html>
