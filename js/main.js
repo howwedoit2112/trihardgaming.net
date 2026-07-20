@@ -3,12 +3,13 @@
  * Handles navigation, link functionality, and interactive elements
  */
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     initNavigation();
+    initShrinkableHeader();
+    initMobileMenu();
     initLinkHandling();
     initSmoothScroll();
     initArticleInteractions();
-    initMobileMenu();
     initCategoryFilter();
     console.log('TriHard Gaming Tech loaded successfully');
 });
@@ -25,6 +26,72 @@ function initNavigation() {
         if (linkPage === currentPage ||
             (currentPage === '' && linkPage === 'index.html')) {
             link.classList.add('active');
+        }
+    });
+}
+
+/**
+ * Shrink header on scroll
+ */
+function initShrinkableHeader() {
+    const nav = document.querySelector('.site-nav');
+    if (!nav) return;
+
+    let ticking = false;
+
+    window.addEventListener('scroll', function () {
+        if (!ticking) {
+            window.requestAnimationFrame(function () {
+                if (window.scrollY > 60) {
+                    nav.classList.add('scrolled');
+                } else {
+                    nav.classList.remove('scrolled');
+                }
+                ticking = false;
+            });
+            ticking = true;
+        }
+    }, { passive: true });
+}
+
+/**
+ * Hamburger menu — toggles .nav-links visibility
+ */
+function initMobileMenu() {
+    const nav = document.querySelector('.site-nav');
+    const navLinks = document.querySelector('.nav-links');
+    if (!nav || !navLinks) return;
+
+    // Build hamburger button
+    const hamburger = document.createElement('button');
+    hamburger.className = 'hamburger';
+    hamburger.setAttribute('aria-label', 'Toggle navigation');
+    hamburger.setAttribute('aria-expanded', 'false');
+    hamburger.innerHTML = '<span class="bar"></span><span class="bar"></span><span class="bar"></span>';
+
+    nav.appendChild(hamburger);
+
+    hamburger.addEventListener('click', function () {
+        const isOpen = navLinks.classList.toggle('open');
+        hamburger.classList.toggle('is-open');
+        hamburger.setAttribute('aria-expanded', isOpen);
+    });
+
+    // Close menu when clicking a link inside it
+    navLinks.querySelectorAll('a').forEach(function (link) {
+        link.addEventListener('click', function () {
+            navLinks.classList.remove('open');
+            hamburger.classList.remove('is-open');
+            hamburger.setAttribute('aria-expanded', 'false');
+        });
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', function (e) {
+        if (!nav.contains(e.target)) {
+            navLinks.classList.remove('open');
+            hamburger.classList.remove('is-open');
+            hamburger.setAttribute('aria-expanded', 'false');
         }
     });
 }
@@ -50,14 +117,12 @@ function initLinkHandling() {
             // Resolve relative paths correctly
             let targetUrl = href;
             if (!href.startsWith('/')) {
-                // Strip filename from current path to get directory
                 const currentPath = window.location.pathname;
                 const slashIdx = currentPath.lastIndexOf('/');
                 const currentDir = slashIdx >= 0 ? currentPath.substring(0, slashIdx + 1) : '';
                 targetUrl = currentDir + href;
             }
 
-            // Navigate
             window.location.assign(targetUrl);
         });
     });
@@ -113,49 +178,6 @@ function initArticleInteractions() {
         });
         block.appendChild(button);
     });
-}
-
-/**
- * Mobile hamburger menu
- */
-function initMobileMenu() {
-    const nav = document.querySelector('.site-nav');
-    if (!nav) return;
-
-    const hamburger = document.createElement('button');
-    hamburger.className = 'hamburger';
-    hamburger.innerHTML = '\u2630';
-    hamburger.setAttribute('aria-label', 'Toggle navigation');
-    hamburger.style.cssText = `
-        display: none; background: none; border: none;
-        color: #8b949e; font-size: 1.5rem; cursor: pointer;
-        margin-right: 1rem;
-    `;
-
-    const navLinks = document.querySelector('.nav-links');
-    if (!navLinks) return;
-
-    hamburger.addEventListener('click', () => {
-        const isFlex = navLinks.style.display === 'flex';
-        navLinks.style.display = isFlex ? 'none' : 'flex';
-    });
-
-    const mediaQuery = window.matchMedia('(max-width: 768px)');
-    function handleMobileView(e) {
-        if (e.matches) {
-            hamburger.style.display = 'block';
-            navLinks.style.flexDirection = 'column';
-            navLinks.style.gap = '0.5rem';
-            navLinks.style.padding = '1rem 0';
-        } else {
-            hamburger.style.display = 'none';
-            navLinks.style.display = 'flex';
-            navLinks.style.flexDirection = 'row';
-        }
-    }
-    mediaQuery.addEventListener('change', handleMobileView);
-    handleMobileView(mediaQuery);
-    nav.insertBefore(hamburger, navLinks);
 }
 
 /**
