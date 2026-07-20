@@ -69,7 +69,8 @@ function initMobileMenu() {
     hamburger.setAttribute('aria-expanded', 'false');
     hamburger.innerHTML = '<span class="bar"></span><span class="bar"></span><span class="bar"></span>';
 
-    nav.appendChild(hamburger);
+    // Insert hamburger BEFORE nav links so links appear after it in DOM
+    nav.insertBefore(hamburger, navLinks);
 
     hamburger.addEventListener('click', function () {
         const isOpen = navLinks.classList.toggle('open');
