@@ -386,7 +386,7 @@ def main():
     # Git commit and push
     print(f"\n🚀 Committing and pushing to GitHub...")
     try:
-        subprocess.run(["git", "add", "index.html", "articles/index.html"], cwd=SITE_DIR, check=True, capture_output=True)
+        subprocess.run(["git", "add", "."], cwd=SITE_DIR, check=True, capture_output=True)
         subprocess.run(
             ["git", "commit", "-m", f"Auto-regenerate site: {len(articles)} articles, {len(cat_counts)} categories, newest: {articles_sorted[0]['date'].strftime('%Y-%m-%d')}"],
             cwd=SITE_DIR, check=True, capture_output=True
