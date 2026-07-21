@@ -109,6 +109,14 @@ def parse_article_metadata(filepath: Path) -> dict | None:
             date = datetime.strptime(time_match.group(1), "%Y-%m-%d")
         except ValueError:
             pass
+    # Fallback: parse "Published: ... · Month Day, Year" or "article-meta ... · Month Day, Year"
+    if date == datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) or True:
+        date_str_match = re.search(r'(?:Published:.*?|article-meta[^>]*>[^·]*·\s*)(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2}),\s*(\d{4})', content, re.DOTALL)
+        if date_str_match:
+            try:
+                date = datetime.strptime(f"{date_str_match.group(1)} {date_str_match.group(2)}, {date_str_match.group(3)}", "%B %d, %Y")
+            except ValueError:
+                pass
 
     # Extract author
     author = "Unknown"
