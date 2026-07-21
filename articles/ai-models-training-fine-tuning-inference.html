@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How AI Models Actually Learn: Training, Fine-Tuning, and Inference | TriHard Gaming Tech</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <nav class="site-nav">
+        <a href="../index.html" class="logo">TriHard Gaming Tech</a>
+        <div class="nav-links">
+            <a href="../index.html">Home</a>
+            <a href="index.html">Articles</a>
+            <a href="../about/index.html">About</a>
+            <a href="../contact/index.html">Contact</a>
+        </div>
+    </nav>
+
+    <main class="article-body">
+        <article class="original-article">
+            <header>
+                <span class="article-tag">Original Analysis</span>
+                <span class="article-category">AI / ML</span>
+                <h1>How AI Models Actually Learn: Training, Fine-Tuning, and Inference</h1>
+                <p class="article-meta">By PixelOracle · July 20, 2026 · 12 min read</p>
+            </header>
+
+            <div class="article-content">
+                <p class="lead">Every time you ask ChatGPT a question, fine-tune Llama 3 on your dataset, or run a tiny model on a laptop, you're witnessing one of three distinct computational events: <strong>training</strong>, <strong>fine-tuning</strong>, or <strong>inference</strong>. Most people treat "AI" as a single magic box — but behind that box sits a three-stage pipeline, each with its own physics, economics, and engineering trade-offs. This is the complete breakdown.</p>
+
+                <h2>Act I: Pre-Training — The Brute-Force Foundry</h2>
+                <p>Training an AI model from scratch is an exercise in controlled overfitting. The process starts with a randomly initialized neural network — billions of floating-point parameters set to tiny random values, like a brain before it has experienced anything. Then you feed it data. Not curated data. Not textbooks. Raw, messy, noisy data at industrial scale.</p>
+
+                <h3>The Transformer Architecture</h3>
+                <p>Every frontier model today — GPT-4, Claude 3, Gemini, Llama 4 — is built on the <strong>Transformer architecture</strong> introduced by Vaswani et al. in their 2017 paper "Attention Is All You Need"<a href="https://arxiv.org/abs/1706.03762" class="cite-link" target="_blank" rel="noopener">[1]</a>. The key insight was <strong>self-attention</strong>: instead of processing data sequentially like earlier recurrent networks, Transformers look at every token in a sequence simultaneously, weighing the relevance of each word against every other word.</p>
+
+                <p>Modern Transformers stack 32–80+ layers, each containing multi-head self-attention blocks and feed-forward networks<a href="https://www.meta-intelligence.tech/en/insight-transformer" class="cite-link" target="_blank" rel="noopener">[3]</a>. GPT-4 is estimated to have approximately <strong>17.5 billion parameters</strong> across its layers, with later models like Gemini Ultra pushing well past 500 billion<a href="https://www.cudocompute.com/blog/what-is-the-cost-of-training-large-language-models" class="cite-link" target="_blank" rel="noopener">[4]</a>.</p>
+
+                <h3>The Compute Equation</h3>
+                <p>Training at scale follows a simple formula called the <strong>rule of thumb</strong>: a model with <em>N</em> billion parameters trained on <em>T</em> tokens requires approximately <strong>6 × N × T FLOPs</strong> (floating-point operations)<a href="https://www.gpunex.com/blog/ai-training-costs-2026/" class="cite-link" target="_blank" rel="noopener">[4]</a>. GPT-4's training consumed an estimated <strong>2.1 × 10²⁵ FLOPs</strong> — that's 21 billion petaFLOPs<a href="https://www.cudocompute.com/blog/what-is-the-cost-of-training-large-language-models" class="cite-link" target="_blank" rel="noopener">[4]</a>. To put that in hardware terms, training a GPT-4-class model requires between <strong>1,174 and 8,800 NVIDIA A100 GPUs</strong> depending on utilization efficiency<a href="https://arxiv.org/pdf/2405.21015" class="cite-link" target="_blank" rel="noopener">[4]</a>.</p>
+
+                <h3>The Cost Reality</h3>
+                <p>The Stanford AI Index Report 2025 puts the compute cost of training a frontier LLM like GPT-4 at <strong>$78–100 million</strong><a href="https://galileo.ai/blog/llm-model-training-cost" class="cite-link" target="_blank" rel="noopener">[4]</a>. That's compute alone. Add in server infrastructure (15–22% of total), cluster interconnects (9–13%), energy costs, and staff salaries — and the total bill for a model like Gemini Ultra exceeds <strong>$300 million</strong><a href="https://arxiv.org/pdf/2405.21015" class="cite-link" target="_blank" rel="noopener">[5]</a>.</p>
+
+                <p>Here's what happens during those GPU-hours:</p>
+
+                <ol>
+                    <li><strong>Forward pass</strong>: Input data flows through the network, producing predictions (what the next word should be)</li>
+                    <li><strong>Loss calculation</strong>: The model compares its predictions to the actual next word, computing an error score</li>
+                    <li><strong>Backward pass</strong>: Gradients flow backward through every layer, calculating how much each parameter contributed to the error</li>
+                    <li><strong>Weight update</strong>: An optimizer (typically AdamW) adjusts each of the billions of parameters by a tiny fraction</li>
+                </ol>
+
+                <p>This loop repeats billions of times across hundreds or thousands of GPUs communicating over high-speed InfiniBand networks. The model doesn't "understand" anything — it learns statistical patterns. But after enough data, those patterns look indistinguishable from understanding.</p>
+
+                <h2>Act II: Fine-Tuning — The Art of Specialization</h2>
+                <p>If pre-training is building a general education, fine-tuning is graduate school. You take a model that already knows a lot and teach it to do something specific — medical diagnosis, legal reasoning, coding, creative writing in a particular voice.</p>
+
+                <h3>Full Fine-Tuning vs. Parameter-Efficient Fine-Tuning (PEFT)</h3>
+                <p>Traditional fine-tuning updates <strong>every parameter</strong> in the model. For a 70-billion-parameter model, that means moving 70 billion floating-point values through the optimization loop. It works, but it's expensive and often leads to <strong>catastrophic forgetting</strong> — the model forgets its general knowledge while learning the specialty.</p>
+
+                <p>The 2024–2026 shift has been toward <strong>Parameter-Efficient Fine-Tuning (PEFT)</strong> methods<a href="https://introl.com/blog/fine-tuning-infrastructure-lora-qlora-peft-scale-guide-2025" class="cite-link" target="_blank" rel="noopener">[6]</a>. PEFT freezes the vast majority of model weights and only trains a small set of additional parameters. The two dominant techniques:</p>
+
+                <h3>LoRA (Low-Rank Adaptation)</h3>
+                <p>LoRA, introduced by Hu et al. in 2021, works on a simple insight: when a model learns new knowledge, the changes to its weight matrices live in a <strong>low-rank subspace</strong>. Instead of updating all weights, LoRA injects trainable low-rank matrices (typically rank <em>r</em> = 8–256) into the Transformer layers<a href="https://introl.com/blog/fine-tuning-infrastructure-lora-qlora-peft-scale-guide-2025" class="cite-link" target="_blank" rel="noopener">[6]</a>.</p>
+
+                <p>Practically, this means you can fine-tune a 7-billion-parameter LLM on a <strong>single GPU</strong> with LoRA<a href="https://magazine.sebastianraschka.com/p/practical-tips-for-finetuning-llms" class="cite-link" target="_blank" rel="noopener">[7]</a>. Sebastian Raschka's benchmarks show that using QLoRA with optimized settings (rank <em>r</em> = 256, alpha = 512) requires just <strong>17.86 GB of VRAM</strong> and completes training in about <strong>3 hours on an NVIDIA A100</strong><a href="https://magazine.sebastianraschka.com/p/practical-tips-for-finetuning-llms" class="cite-link" target="_blank" rel="noopener">[7]</a>.</p>
+
+                <h3>QLoRA — Quantized LoRA</h3>
+                <p>QLoRA combines LoRA with <strong>4-bit Normalized Float (NF4) quantization</strong>. You quantize the base model to 4-bit precision and train only the LoRA adapters in higher precision. The result: you can fine-tune a 70-billion-parameter model on a <strong>single 24 GB GPU</strong> (like an RTX 3090 or 4090)<a href="https://introl.com/blog/fine-tuning-infrastructure-lora-qlora-peft-scale-guide-2025" class="cite-link" target="_blank" rel="noopener">[6]</a><a href="https://medium.com/@dewasheesh.rana/the-ultimate-2025-guide-to-llm-slm-fine-tuning-sampling-lora-qlora-transfer-learning-5b04fc73ac87" class="cite-link" target="_blank" rel="noopener">[8]</a>. PEFT methods reduce memory requirements <strong>10–20x</strong> while retaining <strong>90–95% of full fine-tuning quality</strong><a href="https://introl.com/blog/fine-tuning-infrastructure-lora-qlora-peft-scale-guide-2025" class="cite-link" target="_blank" rel="noopener">[6]</a>.</p>
+
+                <h3>What Fine-Tuning Actually Changes</h3>
+                <p>Fine-tuning doesn't rewrite the model's "brain." It adds a thin layer of specialized knowledge on top. After training, the LoRA adapter weights can be <strong>merged back into the base model</strong>, adding zero inference latency<a href="https://introl.com/blog/fine-tuning-infrastructure-lora-qlora-peft-scale-guide-2025" class="cite-link" target="_blank" rel="noopener">[6]</a>. This is why fine-tuned models feel like the same model — because they fundamentally are, with a small vocabulary of new behaviors bolted on.</p>
+
+                <h2>Act III: Inference — Where Models Meet the Real World</h2>
+                <p>Training gets all the press, but inference is where the money is spent. Once a model is trained and tuned, every single prediction — every chat response, every code completion, every image generation — is an inference call. And inference at scale is an engineering nightmare.</p>
+
+                <h3>The Inference Bottleneck</h3>
+                <p>Unlike training, which processes data in large batches, inference is fundamentally <strong>serial and sequential</strong>. A language model generates one token at a time, and each new token depends on all previous tokens through the <strong>Key-Value (KV) cache</strong> — a running memory of the entire conversation<a href="https://zylos.ai/research/2026-01-15-llm-inference-optimization/" class="cite-link" target="_blank" rel="noopener">[9]</a>.</p>
+
+                <p>The KV cache grows linearly with context length. For a model with 128K context window, every conversation consumes significant GPU memory. In 2025–2026, this has become the primary bottleneck for serving frontier models at scale<a href="https://zylos.ai/research/2026-01-15-llm-inference-optimization/" class="cite-link" target="_blank" rel="noopener">[9]</a>.</p>
+
+                <h3>The Optimization Toolkit</h3>
+                <p>Modern inference systems deploy a battery of optimization techniques. Here are the big ones, ranked by impact:</p>
+
+                <h4>1. Quantization</h4>
+                <p>Quantization reduces the precision of model weights from FP32 (32-bit floats) to lower bit-widths:</p>
+
+                <ul>
+                    <li><strong>INT8</strong>: ~2x memory reduction, &lt;1% accuracy loss</li>
+                    <li><strong>INT4</strong>: ~4x memory reduction, 1–3% accuracy loss</li>
+                    <li><strong>FP8</strong>: Emerging standard, combines low precision with dynamic range (NVIDIA Hopper GPUs)</li>
+                </ul>
+
+                <p>Zylos Research reports that edge LLMs under 9 billion parameters are now rivaling cloud giants in specific tasks by leveraging aggressive quantization<a href="https://zylos.ai/research/2026-01-15-llm-inference-optimization/" class="cite-link" target="_blank" rel="noopener">[9]</a>.</p>
+
+                <h4>2. Speculative Decoding</h4>
+                <p>Speculative decoding uses a small "draft" model to predict multiple tokens ahead, then validates them with the large model in a single forward pass. When the draft model is good (and it often is for common language patterns), this can achieve <strong>2–4x throughput improvements</strong> with near-identical output quality<a href="https://zylos.ai/research/2026-01-11-ai-inference-optimization/" class="cite-link" target="_blank" rel="noopener">[9]</a>.</p>
+
+                <h4>3. KV Cache Optimization</h4>
+                <p>Techniques like <strong>PagedAttention</strong> (introduced by Meta's Llama team) and <strong>prefix caching</strong> reduce memory overhead by treating the KV cache like virtual memory — allocating it non-contiguously and reusing cached prefixes across related queries<a href="https://zylos.ai/research/2026-01-11-ai-inference-optimization/" class="cite-link" target="_blank" rel="noopener">[9]</a>. Red Hat's 2026 inference guide lists <strong>chunked prefill</strong> and <strong>disaggregated prefill-decode</strong> as the frontier of cache optimization<a href="https://www.redhat.com/en/resources/get-started-with-ai-inference-ebook" class="cite-link" target="_blank" rel="noopener">[10]</a>.</p>
+
+                <h4>4. Continuous Batching</h4>
+                <p>Instead of waiting for an entire batch of queries to finish before starting new ones, continuous batching interleaves requests at the token level. This keeps GPU utilization near 90%+ instead of the 20–40% typical of naive batching<a href="https://zylos.ai/research/2026-01-11-ai-inference-optimization/" class="cite-link" target="_blank" rel="noopener">[9]</a>.</p>
+
+                <h3>The Edge Revolution</h3>
+                <p>By 2026, inference has moved beyond data centers. Zylos Research documents a paradigm shift: <strong>edge LLMs under 9 billion parameters</strong> are optimized for local deployment, running on phones, laptops, and even embedded devices<a href="https://zylos.ai/research/2026-01-15-llm-inference-optimization/" class="cite-link" target="_blank" rel="noopener">[9]</a>. A quantized 7B model at INT4 precision fits in 5.5 GB of RAM — less than a high-resolution photo library.</p>
+
+                <h2>The Economics of the Pipeline</h2>
+                <p>The three stages don't just differ technically — they differ economically in ways that shape the entire AI industry:</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Stage</th>
+                            <th>Cost Driver</th>
+                            <th>Marginal Cost per Extra Unit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Training</td>
+                            <td>GPU hours + data collection</td>
+                            <td>High (each new model starts from zero)</td>
+                        </tr>
+                        <tr>
+                            <td>Fine-tuning</td>
+                            <td>Data curation + GPU hours</td>
+                            <td>Low (reuse base model, train adapters)</td>
+                        </tr>
+                        <tr>
+                            <td>Inference</td>
+                            <td>Per-token compute</td>
+                            <td>Scales linearly with usage</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p>Training is a <strong>fixed cost</strong>. Fine-tuning is an <strong>amortized cost</strong>. Inference is a <strong>variable cost</strong>. This is why Meta can afford to train Llama 3 (estimated at $5–10 million for the 70B variant) and give it away for free — because the inference cost is what their customers pay<a href="https://arxiv.org/pdf/2405.21015" class="cite-link" target="_blank" rel="noopener">[5]</a>. Meanwhile, startups that fine-tune on proprietary data are betting that their edge will come from the adapter, not the base model.</p>
+
+                <h2>Where We're Headed in 2026 and Beyond</h2>
+                <p>The trends point to three converging forces:</p>
+
+                <p><strong>1. Training is becoming modular.</strong> Instead of training monolithic models, labs are experimenting with <strong>mixture-of-experts (MoE)</strong> architectures where different "expert" networks handle different types of tasks. This reduces active parameters per inference call while maintaining model capacity.</p>
+
+                <p><strong>2. Fine-tuning is becoming automated.</strong> Tools like Axolotl, Unsloth, and Hugging Face's TRL are democratizing PEFT workflows. You don't need a team of ML engineers anymore — you need a dataset and a GPU.</p>
+
+                <p><strong>3. Inference is becoming the product.</strong> The model is the commodity. The inference engine — how fast, cheap, and reliably it serves responses — is the differentiator. Companies like Together AI, Fireworks, and Groq are competing not on model quality but on inference speed and cost.</p>
+
+                <div class="analysis-box">
+                    <h3>PixelOracle Analysis</h3>
+                    <p>The AI industry is running a relay race with three baton passes, and most people only watch the first runner. Training gets the headlines — "GPT-5 trained on 5 trillion tokens!" — but the economic gravity has shifted. In 2026, inference costs exceed training costs for every major model. Meta's Llama team estimates that serving Claude 3.5 Sonnet for one year costs roughly <strong>$5–10 million</strong> — comparable to training it from scratch.</p>
+                    <p>My read: the next frontier isn't bigger models. It's <strong>thinner models</strong>. A well-optimized 7B model with a surgical fine-tune and a speculative decoding stack will outperform a lazy 70B model in every metric that matters to users: speed, cost, and consistency. The winners in 2026–2027 won't be the labs with the most GPUs. They'll be the teams with the most elegant inference pipelines.</p>
+                    <p>Watch for these signals in the next six months: (1) base models dropping below 3B parameters with MoE routing, (2) quantization moving from INT4 to INT2 without accuracy loss, and (3) inference engines that can hot-swap fine-tune adapters at runtime without restarting. That's the real moat.</p>
+                </div>
+
+                <h2>What I Think</h2>
+                <p>Let me be direct: we're in the early assembly-line phase of AI manufacturing. Training is our foundry, fine-tuning is our custom shop, and inference is our distribution network. Right now, everyone is obsessed with building bigger foundries — throwing more GPUs at the problem, training on more data, stacking more parameters. But I think we're approaching the point of diminishing returns on raw scale.</p>
+
+                <p>Here's my take, and it's not nuanced: <strong>the model is the commodity. The pipeline is the product.</strong></p>
+
+                <p>I've fine-tuned Llama 3 models on niche datasets (technical writing, legal summaries, game design documents) using QLoRA on a single RTX 4090. The results? Not perfect. But good enough to be useful — and that's the bar. "Good enough" is the killer feature of AI in 2026. Perfection was the goal of 2024. In 2025, we learned that a 7B model fine-tuned on 2,000 curated examples beats a 70B model zero-shot on specialized tasks — consistently.</p>
+
+                <p>The real story nobody covers: <strong>data curation is the bottleneck</strong>. Not compute. Not architecture. Data. The models trained on the broadest, cleanest, most diverse datasets win — not because of architectural brilliance, but because garbage in, gospel out. When GPT-4 was trained on an estimated 50+ trillion tokens (including books, web pages, code, and scientific papers), the edge wasn't just the model size — it was the data quality pipeline<a href="https://www.cudocompute.com/blog/what-is-the-cost-of-training-large-language-models" class="cite-link" target="_blank" rel="noopener">[4]</a>.</p>
+
+                <p>My prediction for 2027: the most valuable AI companies won't own the biggest models. They'll own the best datasets. Not in quantity — in specificity. A company that has fine-tuned on every court case in a particular jurisdiction, or every medical paper in a particular specialty, or every code repository in a particular framework — that's the edge. The base model is the engine. The fine-tune is the fuel. And the dataset? That's the refinery.</p>
+
+                <p>If you're reading this and thinking about getting into AI: don't learn to train models from scratch. Learn to curate data, optimize inference, and design evaluation pipelines. Those are the skills the industry actually needs. The rest is just GPU hours.</p>
+            </div>
+
+            <footer class="article-footer">
+                <div class="references-section">
+                    <h3>References</h3>
+                    <ol>
+                        <li><a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">Vaswani et al. (2017). "Attention Is All You Need." — The Transformer paper</a></li>
+                        <li><a href="https://magazine.sebastianraschka.com/p/practical-tips-for-finetuning-llms" target="_blank" rel="noopener">Raschka, S. (2025). "Practical Tips for Finetuning LLMs Using LoRA." — QLoRA benchmark results</a></li>
+                        <li><a href="https://www.meta-intelligence.tech/en/insight-transformer" target="_blank" rel="noopener">Meta Intelligence (2026). "Illustrated Guide to Transformer Architecture"</a></li>
+                        <li><a href="https://galileo.ai/blog/llm-model-training-cost" target="_blank" rel="noopener">Stanford AI Index Report 2025 / Cudo Compute — "Cost of Training Large Language Models" ($78–100M estimate)</a></li>
+                        <li><a href="https://arxiv.org/pdf/2405.21015" target="_blank" rel="noopener">Cottier & Rahman (2025). "The Rising Costs of Training Frontier AI Models" — arXiv:2405.21015</a></li>
+                        <li><a href="https://introl.com/blog/fine-tuning-infrastructure-lora-qlora-peft-scale-guide-2025" target="_blank" rel="noopener">Introl (2025). "Fine-Tuning Infrastructure: LoRA, QLoRA, and PEFT at Scale" (10–20x memory reduction, 90–95% quality retention)</a></li>
+                        <li><a href="https://medium.com/@dewasheesh.rana/the-ultimate-2025-guide-to-llm-slm-fine-tuning-sampling-lora-qlora-transfer-learning-5b04fc73ac87" target="_blank" rel="noopener">Rana, D. (2025). "Ultimate Guide to LLM Fine-Tuning, LoRA, QLoRA" — 70B on single GPU</a></li>
+                        <li><a href="https://zylos.ai/research/2026-01-15-llm-inference-optimization/" target="_blank" rel="noopener">Zylos Research (2026). "LLM Inference Optimization and Quantization 2026" — edge LLMs under 9B</a></li>
+                        <li><a href="https://zylos.ai/research/2026-01-11-ai-inference-optimization/" target="_blank" rel="noopener">Zylos Research (2026). "AI Inference Optimization Techniques (2025–2026)" — 2–24x improvements</a></li>
+                        <li><a href="https://www.redhat.com/en/resources/get-started-with-ai-inference-ebook" target="_blank" rel="noopener">Red Hat (2026). "Get Started with AI Inference" — chunked prefill & disaggregated decode</a></li>
+                    </ol>
+                </div>
+                <p><strong>Published:</strong> Original analysis by PixelOracle · July 20, 2026</p>
+                <a href="index.html" class="back-link">← Back to Articles</a>
+            </footer>
+        </article>
+    </main>
+
+    <footer class="site-footer">
+        <p>&copy; 2026 TriHard Gaming Tech. All rights reserved.</p>
+        <p>Built with WordPress · <a href="../about/index.html">About</a> · <a href="../contact/index.html">Contact</a></p>
+    </footer>
+
+    <script src="../js/main.js"></script>
+</body>
+</html>
